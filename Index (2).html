@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+<style>
+    h3{font-family: "Times New Roman", Times, serif;}
+    h2{font-family: "Lucida Console", "Courier New", monospace;}
+    p{font-family: "Papyrus";}
+</style>
+<body>
+    
+   
+<h3>SENSOR DATA PLOTTING</h3>
+<h2>mq135</h2>
+<p>please select the date.</p>
+<input type = "date"  id="demo">  
+<button class="btn btn-success" type="button" onclick=myFunction()>Plot data</button>
+<div id="chartContainer"></div>
+    <canvas id="chart" width="400" height="400"></canvas>
+<head>
+ 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+   
+  </head>
+
+
+<script language = "javascript" type = "text/javascript">
+ 
+ 
+function myFunction() {
+    var selectedDate=document.getElementById("demo").value;
+    console.log(selectedDate);
+
+    const Http = new XMLHttpRequest();
+    const url='https://air-pollution-8e647-default-rtdb.asia-southeast1.firebasedatabase.app/AQ_Level_in_ppm.json';
+    Http.open("GET", url);
+    Http.send();
+    Http.onreadystatechange = () => {
+        if (Http.readyState == 4 && Http.status == 200) {
+            console.log(Http.responseText);
+            var resData=JSON.parse(Http.responseText);
+            console.log(resData);
+            var i;
+            var plotData=[];
+
+            for(i=0;i<resData.length;i++) {
+                var y=resData[i]['reading']
+                if(resData[i]['date']==selectedDate){
+                var temp1=resData[i]['date'].split('-');
+                var temp2=resData[i]['time'].split(':');
+                var x=new Date(temp1[0],temp1[1]-1,temp1[2],temp2[0],temp2[1]);
+                console.log(x,y);
+                plotData.push({y:y,x:x});
+                }
+               
+            }
+           
+            //console.log(plotData);
+            if(plotData.length!=0){
+                var chart = new CanvasJS.Chart("chartContainer",
+                {
+                    title:{
+                        text: "A_Y data"
+                    },
+                    axisX:{
+                        gridColor: "cyan" ,
+                        gridThickness: 2        
+                    },
+                    axisY:{        
+                        gridColor: "cyan"
+                    },
+                    data: [
+                        {
+                            type: "bar",
+
+                            dataPoints: plotData
+                        }
+
+                    ]
+                });
+
+                chart.render();
+            }
+            else{
+                document.getElementById("chartContainer").innerHTML="No data available for this date."
+            }
+        }
+    }
+    Http.open("GET", url);
+   
+    Http.send();
+   
+
+}
+
+
+</script>
+
+
+</body>
+</html>
